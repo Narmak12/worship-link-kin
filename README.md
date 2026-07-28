@@ -5,12 +5,7 @@ Plateforme reliant les talents chrétiens (musiciens, artistes de culte) et les
 
 ## Avant de compiler — 2 choses à faire toi-même
 
-1. **Supabase** : renseigne tes identifiants dans
-   `lib/config/supabase_config.dart` (`supabaseUrl` et `supabaseAnonKey`,
-   trouvables dans Supabase > Settings > API), et vérifie que les tables
-   utilisées existent bien dans ta base (profiles, jobs, applications,
-   invitations, media, notifications, favorites, skills, profile_skills,
-   notification_tokens, reviews).
+1. **Supabase** : ✅ déjà configuré (projet "worship-link-kin", 12 tables + RLS + buckets de stockage créés). Il reste juste à activer un fournisseur SMS (Twilio, MessageBird...) dans Supabase > Authentication > Providers > Phone pour que les vrais SMS de vérification partent — sans ça, la connexion par téléphone ne pourra pas envoyer de code réel.
 
 2. **Firebase (notifications push)** : un `android/app/google-services.json`
    **placeholder** est inclus pour que Gradle ne bloque pas au premier build.
