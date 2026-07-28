@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fond d'écran affiché pendant le lancement natif Android, avant que Flutter ne prenne le relais. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launchBackground" />
+</layer-list>

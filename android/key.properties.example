@@ -1,0 +1,14 @@
+# Copie ce fichier en "key.properties" (même dossier, sans ".example") et
+# remplis-le avec tes vraies valeurs pour activer la signature de release.
+#
+# NE JAMAIS committer le fichier "key.properties" réel ni le fichier .keystore
+# sur GitHub — ils sont déjà exclus par .gitignore.
+#
+# Sur Codemagic : préfère leur fonctionnalité native de gestion de la
+# signature Android (upload du .keystore + mots de passe chiffrés dans les
+# réglages du workflow) plutôt que de committer quoi que ce soit.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=worshiplink
+storeFile=worshiplink-release.keystore
