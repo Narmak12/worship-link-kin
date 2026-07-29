@@ -14,7 +14,7 @@ final notificationsStreamProvider = StreamProvider<List<Map<String, dynamic>>>((
 final unreadCountProvider = StreamProvider<int>((ref) {
   final user = ref.watch(currentUserProvider);
   if (user == null) return Stream.value(0);
-  return supabase.from(SupabaseConfig.notificationsTable).stream(primaryKey: ['id']).eq('user_id', user.id).eq('is_read', false).map((d) => d.length);
+  return supabase.from(SupabaseConfig.notificationsTable).stream(primaryKey: ['id']).eq('user_id', user.id).map((rows) => rows.where((r) => r['is_read'] == false).length);
 });
 
 final notificationControllerProvider = StateNotifierProvider<NotificationController, AsyncValue<void>>((ref) => NotificationController());
