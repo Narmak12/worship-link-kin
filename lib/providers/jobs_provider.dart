@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/supabase_client.dart';
 import '../config/supabase_config.dart';
 import '../models/job_model.dart';
 

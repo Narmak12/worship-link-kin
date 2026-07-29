@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/supabase_client.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final searchCommuneProvider = StateProvider<String?>((ref) => null);
