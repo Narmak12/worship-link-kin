@@ -6,7 +6,7 @@ import 'services/notification_service.dart';
 import 'services/supabase_client.dart';
 
 void main() async {
-  WidgetsBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   await SupabaseClientService.initialize();
   await initializeDateFormatting('fr_FR', null);

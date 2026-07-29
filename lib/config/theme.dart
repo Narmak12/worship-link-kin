@@ -83,7 +83,7 @@ class AppTheme {
         errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.softError)),
         hintStyle: GoogleFonts.inter(fontSize: 15, color: AppColors.slateMuted),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0, color: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),

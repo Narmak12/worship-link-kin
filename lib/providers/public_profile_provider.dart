@@ -22,10 +22,12 @@ final profileReviewsProvider = FutureProvider.family<List<Map<String, dynamic>>,
 
 final profileStatsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, userId) async {
   try {
-    final missions = await supabase.from('applications').select('id', const CountOption(estimated: false)).eq('talent_id', userId).eq('status', 'accepted').count();
-    final total = await supabase.from('applications').select('id', const CountOption(estimated: false)).eq('talent_id', userId).count();
-    final taux = total.count > 0 ? ((missions.count / total.count) * 100).round() : 0;
-    return {'missions': missions.count, 'taux_acceptation': taux, 'total_candidatures': total.count};
+    final missionsResponse = await supabase.from('applications').select('id').eq('talent_id', userId).eq('status', 'accepted').count(CountOption.exact);
+    final totalResponse = await supabase.from('applications').select('id').eq('talent_id', userId).count(CountOption.exact);
+    final missions = missionsResponse.count;
+    final total = totalResponse.count;
+    final taux = total > 0 ? ((missions / total) * 100).round() : 0;
+    return {'missions': missions, 'taux_acceptation': taux, 'total_candidatures': total};
   } catch (e) { return {'missions': 0, 'taux_acceptation': 0, 'total_candidatures': 0}; }
 });
 

@@ -9,8 +9,9 @@ final jobFilterProvider = StateProvider<String?>((ref) => null);
 
 final jobsStreamProvider = StreamProvider<List<JobModel>>((ref) {
   final filter = ref.watch(jobFilterProvider);
-  var query = supabase.from(SupabaseConfig.jobsTable).select('''*, profiles:recruiter_id (church_name, full_name, whatsapp, phone, avatar_url)''').eq('status', 'open').order('created_at', ascending: false);
-  if (filter != null && filter.isNotEmpty) query = query.ilike('specialite', '%$filter%');
+  var filterQuery = supabase.from(SupabaseConfig.jobsTable).select('''*, profiles:recruiter_id (church_name, full_name, whatsapp, phone, avatar_url)''').eq('status', 'open');
+  if (filter != null && filter.isNotEmpty) filterQuery = filterQuery.ilike('specialite', '%$filter%');
+  final query = filterQuery.order('created_at', ascending: false);
   return query.asStream().map((data) => (data as List<dynamic>).map((j) => JobModel.fromJson(j as Map<String, dynamic>)).toList());
 });
 
