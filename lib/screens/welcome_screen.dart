@@ -1,11 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
+import '../providers/auth_provider.dart';
+import '../services/supabase_client.dart';
 import '../widgets/common/app_button.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  bool _loadingTestMode = false;
+  String? _error;
+
+  Future<void> _startTestMode() async {
+    setState(() {
+      _loadingTestMode = true;
+      _error = null;
+    });
+    try {
+      final session = await ref.read(authServiceProvider).signInAnonymously();
+      if (session == null) {
+        setState(() => _error = 'Connexion anonyme indisponible — active-la dans Supabase (Authentication > Providers > Anonymous).');
+        return;
+      }
+      final userId = session.user.id;
+      final existing = await ref.read(authServiceProvider).fetchProfile(userId);
+      if (existing == null) {
+        await supabase.from('profiles').insert({
+          'id': userId,
+          'role': 'talent',
+          'full_name': 'Utilisateur',
+          'phone': 'test-${userId.substring(0, 8)}',
+          'city': 'Kinshasa',
+        });
+      }
+      ref.invalidate(userProfileProvider);
+      if (!mounted) return;
+      context.go('/onboarding/role');
+    } catch (e) {
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _loadingTestMode = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +89,20 @@ class WelcomeScreen extends StatelessWidget {
                 onPressed: () => context.push('/about'),
                 child: Text('En savoir plus', style: GoogleFonts.inter(fontSize: 13, color: AppColors.gold, fontWeight: FontWeight.w600)),
               ),
+              const Divider(height: 32),
+              Text('Pour tester sans SMS', style: GoogleFonts.inter(fontSize: 11, color: AppColors.slateMuted)),
+              const SizedBox(height: 8),
+              AppButton(
+                label: 'Mode test (sans SMS)',
+                icon: Icons.science_outlined,
+                variant: AppButtonVariant.text,
+                loading: _loadingTestMode,
+                onPressed: _startTestMode,
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 8),
+                Text(_error!, style: GoogleFonts.inter(fontSize: 12, color: AppColors.softError), textAlign: TextAlign.center),
+              ],
               const SizedBox(height: 8),
             ],
           ),

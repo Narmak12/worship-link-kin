@@ -29,6 +29,17 @@ class AuthService {
     await _auth.signOut();
   }
 
+  /// Connexion anonyme — permet de tester l'app sans SMS. À retirer avant
+  /// une vraie mise en production (ce n'est pas une identité vérifiée).
+  Future<Session?> signInAnonymously() async {
+    try {
+      final response = await _auth.signInAnonymously();
+      return response.session;
+    } on AuthException catch (e) {
+      throw _mapAuthError(e.message);
+    }
+  }
+
   Future<Map<String, dynamic>?> fetchProfile(String userId) async {
     try {
       final res = await supabase.from('profiles').select().eq('id', userId).maybeSingle();
