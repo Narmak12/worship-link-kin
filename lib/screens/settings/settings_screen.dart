@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -101,8 +103,18 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               );
               if (confirmed != true) return;
-              await ref.read(notificationServiceProvider).logout();
-              await ref.read(authServiceProvider).signOut();
+              // La déconnexion réelle passe en premier — le nettoyage du jeton
+              // de notifications (Firebase) est fait "au mieux", sans bloquer,
+              // car Firebase n'est pas encore pleinement configuré.
+              try {
+                await ref.read(authServiceProvider).signOut();
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur de déconnexion : $e')));
+                }
+                return;
+              }
+              unawaited(ref.read(notificationServiceProvider).logout().timeout(const Duration(seconds: 3), onTimeout: () {}));
               ref.invalidate(userProfileProvider);
               if (context.mounted) context.go('/welcome');
             },
