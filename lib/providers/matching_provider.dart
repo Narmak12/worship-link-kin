@@ -34,11 +34,11 @@ class ApplicationController extends StateNotifier<AsyncValue<void>> {
   Future<void> apply({required String jobId, required String talentId, required String message, int? proposedPrice}) async {
     state = const AsyncValue.loading();
     try {
+      final job = await supabase.from('jobs').select('recruiter_id, title, profiles:recruiter_id(full_name)').eq('id', jobId).single();
       await supabase.from(SupabaseConfig.applicationsTable).insert({
-        'job_id': jobId, 'talent_id': talentId,
+        'job_id': jobId, 'talent_id': talentId, 'recruiter_id': job['recruiter_id'],
         'message': message.trim().isEmpty ? null : message.trim(), 'proposed_price': proposedPrice,
       });
-      final job = await supabase.from('jobs').select('recruiter_id, title, profiles:recruiter_id(full_name)').eq('id', jobId).single();
       final talent = await supabase.from('profiles').select('full_name').eq('id', talentId).single();
       NotificationService().notifyNewApplication(
         recruiterId: job['recruiter_id'] as String, talentName: talent['full_name'] as String,
