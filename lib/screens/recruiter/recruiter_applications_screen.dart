@@ -8,6 +8,7 @@ import '../../models/application_model.dart';
 import '../../providers/matching_provider.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/recruiter_bottom_nav.dart';
+import '../../widgets/common/empty_state.dart';
 
 class RecruiterApplicationsScreen extends ConsumerWidget {
   const RecruiterApplicationsScreen({super.key});
@@ -22,11 +23,10 @@ class RecruiterApplicationsScreen extends ConsumerWidget {
       body: appsAsync.when(
         data: (apps) {
           if (apps.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Aucune candidature reçue pour le moment.', style: GoogleFonts.inter(color: AppColors.slateMuted)),
-              ),
+            return const EmptyState(
+              icon: Icons.assignment_outlined,
+              title: 'Aucune candidature',
+              subtitle: 'Les candidatures reçues sur tes annonces apparaîtront ici.',
             );
           }
           return ListView.builder(
@@ -36,7 +36,7 @@ class RecruiterApplicationsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

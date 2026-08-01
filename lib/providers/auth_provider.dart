@@ -13,11 +13,17 @@ final authStateStreamProvider = StreamProvider<AuthState>((ref) {
   return ref.read(authServiceProvider).onAuthStateChange;
 });
 
+// IMPORTANT : ces deux providers surveillent (`watch`) le flux d'authentification
+// pour se reconstruire automatiquement à chaque connexion/déconnexion. Sans ce
+// `watch`, la valeur restait figée après le premier rendu (bug racine du
+// "Non authentifié" qui persistait après connexion).
 final currentUserProvider = Provider<User?>((ref) {
+  ref.watch(authStateStreamProvider);
   return ref.read(authServiceProvider).currentUser;
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
+  ref.watch(authStateStreamProvider);
   return ref.read(authServiceProvider).isAuthenticated;
 });
 

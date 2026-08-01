@@ -87,10 +87,24 @@ class SettingsScreen extends ConsumerWidget {
 
           ListTile(
             leading: const Icon(Icons.logout, color: AppColors.softError),
-            title: Text('Déconnexion', style: GoogleFonts.inter(color: AppColors.softError)),
+            title: Text('Déconnexion', style: GoogleFonts.inter(color: AppColors.softError, fontWeight: FontWeight.w600)),
             onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Se déconnecter ?'),
+                  content: const Text('Tu devras te reconnecter pour accéder à nouveau à ton compte.'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Annuler')),
+                    TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Déconnexion')),
+                  ],
+                ),
+              );
+              if (confirmed != true) return;
               await ref.read(notificationServiceProvider).logout();
               await ref.read(authServiceProvider).signOut();
+              ref.invalidate(userProfileProvider);
+              if (context.mounted) context.go('/welcome');
             },
           ),
         ],

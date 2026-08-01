@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../config/theme.dart';
 import '../../providers/notifications_provider.dart';
+import '../../widgets/common/empty_state.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -43,7 +44,7 @@ class NotificationsScreen extends ConsumerWidget {
       body: notificationsAsync.when(
         data: (notifications) {
           if (notifications.isEmpty) {
-            return Center(child: Text('Aucune notification pour le moment.', style: GoogleFonts.inter(color: AppColors.slateMuted)));
+            return const EmptyState(icon: Icons.notifications_none_rounded, title: 'Aucune notification', subtitle: 'Tu seras notifié ici des candidatures, invitations et mises à jour.');
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -80,7 +81,7 @@ class NotificationsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

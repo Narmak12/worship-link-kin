@@ -6,6 +6,7 @@ import '../../models/application_model.dart';
 import '../../providers/matching_provider.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/talent_bottom_nav.dart';
+import '../../widgets/common/empty_state.dart';
 
 class MyApplicationsScreen extends ConsumerWidget {
   const MyApplicationsScreen({super.key});
@@ -20,11 +21,10 @@ class MyApplicationsScreen extends ConsumerWidget {
       body: appsAsync.when(
         data: (apps) {
           if (apps.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Tu n\'as encore postulé à aucune annonce.', style: GoogleFonts.inter(color: AppColors.slateMuted)),
-              ),
+            return const EmptyState(
+              icon: Icons.assignment_outlined,
+              title: 'Aucune candidature',
+              subtitle: 'Postule à une annonce depuis l\'accueil pour la voir apparaître ici.',
             );
           }
           return ListView.builder(
@@ -34,7 +34,7 @@ class MyApplicationsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../config/theme.dart';
 import '../../providers/favorites_provider.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/empty_state.dart';
 
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
@@ -18,11 +19,10 @@ class FavoritesScreen extends ConsumerWidget {
       body: favoritesAsync.when(
         data: (favorites) {
           if (favorites.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Aucun favori pour le moment.', style: GoogleFonts.inter(color: AppColors.slateMuted)),
-              ),
+            return const EmptyState(
+              icon: Icons.favorite_outline,
+              title: 'Aucun favori',
+              subtitle: 'Ajoute des talents en favoris depuis leur profil pour les retrouver ici.',
             );
           }
           return ListView.builder(
@@ -51,7 +51,7 @@ class FavoritesScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../models/invitation_model.dart';
 import '../../providers/matching_provider.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/empty_state.dart';
 
 class MyInvitationsScreen extends ConsumerWidget {
   const MyInvitationsScreen({super.key});
@@ -18,11 +19,10 @@ class MyInvitationsScreen extends ConsumerWidget {
       body: invitationsAsync.when(
         data: (invitations) {
           if (invitations.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Aucune invitation reçue pour le moment.', style: GoogleFonts.inter(color: AppColors.slateMuted)),
-              ),
+            return const EmptyState(
+              icon: Icons.mail_outline,
+              title: 'Aucune invitation',
+              subtitle: 'Les invitations reçues d\'une église apparaîtront ici.',
             );
           }
           return ListView.builder(
@@ -32,7 +32,7 @@ class MyInvitationsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

@@ -8,6 +8,7 @@ import '../../providers/public_profile_provider.dart';
 import '../../services/supabase_client.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/recruiter_bottom_nav.dart';
+import '../../widgets/common/empty_state.dart';
 
 class MyJobsScreen extends ConsumerWidget {
   const MyJobsScreen({super.key});
@@ -28,11 +29,10 @@ class MyJobsScreen extends ConsumerWidget {
       body: jobsAsync.when(
         data: (jobs) {
           if (jobs.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Tu n\'as pas encore publié d\'annonce. Appuie sur + pour commencer.', textAlign: TextAlign.center, style: GoogleFonts.inter(color: AppColors.slateMuted)),
-              ),
+            return const EmptyState(
+              icon: Icons.campaign_outlined,
+              title: 'Aucune annonce publiée',
+              subtitle: 'Appuie sur le bouton + pour publier ta première annonce.',
             );
           }
           return ListView.builder(
@@ -42,7 +42,7 @@ class MyJobsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur : $e')),
+        error: (e, _) => ErrorState(message: e.toString()),
       ),
     );
   }

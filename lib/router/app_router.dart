@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,20 +33,55 @@ import '../screens/talent/talent_edit_profile_screen.dart';
 import '../screens/terms_screen.dart';
 import '../screens/welcome_screen.dart';
 
+/// Transforme un Stream (ici : les changements d'authentification Supabase)
+/// en `Listenable`, ce que `GoRouter.refreshListenable` attend.
+///
+/// C'est LE correctif clé de navigation : avant, `routerProvider` recréait un
+/// tout nouveau `GoRouter` à chaque connexion/déconnexion (via `ref.watch`
+/// directement dans le `Provider`), ce qui effaçait toute la pile de
+/// navigation à chaque fois (plus de bouton retour, plus d'accueil
+/// accessible). Avec `refreshListenable`, le MÊME `GoRouter` reste en place
+/// et se contente de ré-évaluer sa logique `redirect` — la pile de
+/// navigation n'est plus détruite.
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateStreamProvider);
+  final authService = ref.watch(authServiceProvider);
+
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: false,
+    refreshListenable: GoRouterRefreshStream(authService.onAuthStateChange),
     redirect: (context, state) {
-      if (authState.isLoading) return null;
       final user = ref.read(currentUserProvider);
       final isAuth = state.matchedLocation.startsWith('/auth');
       final isOnboarding = state.matchedLocation.startsWith('/onboarding');
       final isSplash = state.matchedLocation == '/';
       final isPublic = state.matchedLocation == '/welcome' || state.matchedLocation == '/about';
-      if (user == null) { if (isAuth || isSplash || isPublic) return null; return '/welcome'; }
+
+      if (user == null) {
+        if (isAuth || isSplash || isPublic) return null;
+        return '/welcome';
+      }
+
       final profileAsync = ref.read(userProfileProvider);
+      // Le profil est encore en cours de chargement : on ne redirige pas
+      // encore pour éviter un aller-retour intempestif vers l'onboarding.
+      if (profileAsync.isLoading && !profileAsync.hasValue) return null;
+
       final profile = profileAsync.valueOrNull;
       final isComplete = profile != null && profile.fullName.isNotEmpty && profile.fullName != 'Utilisateur';
       if (!isComplete && !isOnboarding && !isAuth) return '/onboarding/role';

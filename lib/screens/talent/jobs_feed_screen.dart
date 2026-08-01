@@ -5,6 +5,7 @@ import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../models/job_model.dart';
 import '../../providers/jobs_provider.dart';
+import '../../widgets/common/empty_state.dart';
 import 'apply_bottom_sheet.dart';
 import '../../providers/matching_provider.dart';
 
@@ -39,15 +40,10 @@ class JobsFeedScreen extends ConsumerWidget {
           child: jobsAsync.when(
             data: (jobs) {
               if (jobs.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      '« Car là où deux ou trois sont assemblés en mon nom, je suis au milieu d\'eux. » — Matthieu 18:20\n\nAucune annonce disponible pour le moment.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(fontSize: 14, color: AppColors.slateMuted, height: 1.5),
-                    ),
-                  ),
+                return const EmptyState(
+                  icon: Icons.campaign_outlined,
+                  title: 'Aucune annonce pour le moment',
+                  subtitle: '« Car là où deux ou trois sont assemblés en mon nom, je suis au milieu d\'eux. » — Matthieu 18:20',
                 );
               }
               return ListView.builder(
@@ -57,7 +53,7 @@ class JobsFeedScreen extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Erreur : $e', style: GoogleFonts.inter(color: AppColors.softError))),
+            error: (e, _) => ErrorState(message: e.toString()),
           ),
         ),
       ],

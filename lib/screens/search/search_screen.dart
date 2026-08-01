@@ -6,6 +6,7 @@ import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../providers/search_provider.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/empty_state.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -75,7 +76,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: resultsAsync.when(
               data: (results) {
                 if (results.isEmpty) {
-                  return Center(child: Text('Aucun résultat', style: GoogleFonts.inter(color: AppColors.slateMuted)));
+                  return const EmptyState(icon: Icons.search_off_rounded, title: 'Aucun résultat', subtitle: 'Essaie d\'élargir tes filtres.');
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,7 +103,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Erreur : $e')),
+              error: (e, _) => ErrorState(message: e.toString()),
             ),
           ),
         ],
