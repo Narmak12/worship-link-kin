@@ -16,6 +16,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
+    final role = profileAsync.valueOrNull?.role;
 
     return AppScaffold(
       title: 'Paramètres',
@@ -41,18 +42,28 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Divider(),
 
-          ListTile(
-            leading: const Icon(Icons.favorite_outline, color: AppColors.deepBlue),
-            title: const Text('Mes favoris'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/favorites'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today_outlined, color: AppColors.deepBlue),
-            title: const Text('Mon calendrier'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/calendar'),
-          ),
+          if (role == UserRole.talent) ...[
+            ListTile(
+              leading: const Icon(Icons.calendar_today_outlined, color: AppColors.deepBlue),
+              title: const Text('Mon calendrier'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/calendar'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.mail_outline, color: AppColors.deepBlue),
+              title: const Text('Mes invitations'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/talent/invitations'),
+            ),
+          ],
+          if (role == UserRole.recruiter)
+            ListTile(
+              leading: const Icon(Icons.favorite_outline, color: AppColors.deepBlue),
+              title: const Text('Mes favoris'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/favorites'),
+            ),
+
           ListTile(
             leading: const Icon(Icons.notifications_outlined, color: AppColors.deepBlue),
             title: const Text('Notifications'),

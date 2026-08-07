@@ -11,7 +11,9 @@ class RoleSelectionScreen extends ConsumerWidget {
 
   void _select(BuildContext context, WidgetRef ref, UserRole role) {
     ref.read(onboardingStateProvider.notifier).state = ref.read(onboardingStateProvider).copyWith(selectedRole: role);
-    context.go(role == UserRole.talent ? '/onboarding/talent-form' : '/onboarding/church-form');
+    // push (pas go) : on garde un retour possible vers ce choix de rôle en
+    // cas d'erreur de clic, plutôt que d'effacer l'historique.
+    context.push(role == UserRole.talent ? '/onboarding/talent-form' : '/onboarding/church-form');
   }
 
   @override
