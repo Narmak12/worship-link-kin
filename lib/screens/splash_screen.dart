@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,25 +15,45 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  Timer? _failsafe;
+
   @override
   void initState() {
     super.initState();
+    // Filet de sécurité ultime : quoi qu'il arrive, si on n'a pas navigué
+    // après 10 secondes, on force le retour à l'accueil plutôt que de
+    // laisser l'utilisateur bloqué indéfiniment sur ce spinner. Annulé dès
+    // qu'une navigation réelle a lieu (voir _resolveDestination).
+    _failsafe = Timer(const Duration(seconds: 10), () {
+      if (mounted) context.go('/welcome');
+    });
     _resolveDestination();
   }
 
+  @override
+  void dispose() {
+    _failsafe?.cancel();
+    super.dispose();
+  }
+
   Future<void> _resolveDestination() async {
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-
-    final user = ref.read(currentUserProvider);
-    if (user == null) {
-      context.go('/welcome');
-      return;
-    }
-
     try {
-      final profile = await ref.read(userProfileProvider.future);
+      await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
+
+      final user = ref.read(currentUserProvider);
+      if (user == null) {
+        _failsafe?.cancel();
+        if (mounted) context.go('/welcome');
+        return;
+      }
+
+      final profile = await ref.read(userProfileProvider.future).timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => throw Exception('timeout'),
+      );
+      if (!mounted) return;
+      _failsafe?.cancel();
       final isComplete = profile != null && profile.fullName.isNotEmpty && profile.fullName != 'Utilisateur';
       if (!isComplete) {
         context.go('/onboarding/role');
@@ -40,6 +61,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         context.go(profile!.role == UserRole.talent ? '/home/talent' : '/home/recruiter');
       }
     } catch (_) {
+      // Quelle que soit l'erreur (réseau, session invalide, timeout...),
+      // on ne laisse jamais l'utilisateur bloqué sur le splash.
+      _failsafe?.cancel();
       if (mounted) context.go('/welcome');
     }
   }
