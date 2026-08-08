@@ -71,11 +71,15 @@ class _ChurchProfileFormScreenState extends ConsumerState<ChurchProfileFormScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppTextField(label: 'Nom de l\'église', controller: _churchNameController, hint: 'Ex : Église du Réveil', prefixIcon: Icons.church_outlined),
+            _RequiredLabel('Nom de l\'église'),
+            const SizedBox(height: 8),
+            AppTextField(label: '', controller: _churchNameController, hint: 'Ex : Église du Réveil', prefixIcon: Icons.church_outlined),
             const SizedBox(height: 20),
-            AppTextField(label: 'Nom du responsable', controller: _pastorNameController, hint: 'Ex : Pasteur David Kabila', prefixIcon: Icons.person_outline),
+            _RequiredLabel('Nom du responsable'),
+            const SizedBox(height: 8),
+            AppTextField(label: '', controller: _pastorNameController, hint: 'Ex : Pasteur David Kabila', prefixIcon: Icons.person_outline),
             const SizedBox(height: 20),
-            Text('Commune', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.deepBlue)),
+            _RequiredLabel('Commune'),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _commune,
@@ -86,13 +90,42 @@ class _ChurchProfileFormScreenState extends ConsumerState<ChurchProfileFormScree
             const SizedBox(height: 20),
             AppTextField(label: 'Présentation (optionnel)', controller: _bioController, hint: 'Décris ton église en quelques mots', maxLines: 4),
             if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: GoogleFonts.inter(fontSize: 13, color: AppColors.softError)),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: AppColors.softError.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.softError.withOpacity(0.3))),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.softError, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(_error!, style: GoogleFonts.inter(fontSize: 13, color: AppColors.softError, fontWeight: FontWeight.w500))),
+                  ],
+                ),
+              ),
             ],
             const SizedBox(height: 24),
             AppButton(label: 'Terminer le profil', loading: _loading, onPressed: _submit),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RequiredLabel extends StatelessWidget {
+  final String label;
+  const _RequiredLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.deepBlue),
+        children: [
+          TextSpan(text: label),
+          TextSpan(text: ' *', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.softError)),
+        ],
       ),
     );
   }

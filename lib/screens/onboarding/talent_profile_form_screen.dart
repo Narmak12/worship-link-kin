@@ -69,9 +69,11 @@ class _TalentProfileFormScreenState extends ConsumerState<TalentProfileFormScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppTextField(label: 'Nom complet', controller: _nameController, hint: 'Ex : Jean Mukendi', prefixIcon: Icons.person_outline),
+            _RequiredLabel('Nom complet'),
+            const SizedBox(height: 8),
+            AppTextField(label: '', controller: _nameController, hint: 'Ex : Jean Mukendi', prefixIcon: Icons.person_outline),
             const SizedBox(height: 20),
-            Text('Commune', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.deepBlue)),
+            _RequiredLabel('Commune'),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _commune,
@@ -80,7 +82,7 @@ class _TalentProfileFormScreenState extends ConsumerState<TalentProfileFormScree
               onChanged: (v) => setState(() => _commune = v),
             ),
             const SizedBox(height: 20),
-            Text('Spécialité principale', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.deepBlue)),
+            _RequiredLabel('Spécialité principale'),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _category,
@@ -91,13 +93,42 @@ class _TalentProfileFormScreenState extends ConsumerState<TalentProfileFormScree
             const SizedBox(height: 20),
             AppTextField(label: 'Bio (optionnel)', controller: _bioController, hint: 'Parle un peu de toi et de ton expérience', maxLines: 4),
             if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: GoogleFonts.inter(fontSize: 13, color: AppColors.softError)),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: AppColors.softError.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.softError.withOpacity(0.3))),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.softError, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(_error!, style: GoogleFonts.inter(fontSize: 13, color: AppColors.softError, fontWeight: FontWeight.w500))),
+                  ],
+                ),
+              ),
             ],
             const SizedBox(height: 24),
             AppButton(label: 'Terminer mon profil', loading: _loading, onPressed: _submit),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RequiredLabel extends StatelessWidget {
+  final String label;
+  const _RequiredLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.deepBlue),
+        children: [
+          TextSpan(text: label),
+          TextSpan(text: ' *', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.softError)),
+        ],
       ),
     );
   }
